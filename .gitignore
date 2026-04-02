@@ -28,6 +28,10 @@ ENV/
 
 folders.py
 dir_scan.py
+limpar_playlists.py
+playlists_manager.py
+spotify_covers.py
+check_images.py
 
 # ===== MÚSICA/MÍDIA (Para não subir seus arquivos de teste) =====
 
