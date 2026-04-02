@@ -1,10 +1,30 @@
-# 🎵 SyncVibes - Metadata + Lyrics Injector for local libraries
+<p align="center">
+  <img src="logo.png" width="250" alt="SyncVibes Logo">
+</p>
 
-> **Automatically sync lyrics and album art to your music library (Spotify/Navidrome compatible)**
+<p align="center">
+  <img src="https://img.shields.io/github/stars/ffcro3/syncvibes?style=for-the-badge&color=2ecc71" alt="Stars">
+  <img src="https://img.shields.io/github/forks/ffcro3/syncvibes?style=for-the-badge&color=3498db" alt="Forks">
+  <img src="https://img.shields.io/github/license/ffcro3/syncvibes?style=for-the-badge&color=f1c40f" alt="License">
+  <br>
+  <img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python">
+  <img src="https://img.shields.io/badge/Spotify-1DB954?style=for-the-badge&logo=spotify&logoColor=white" alt="Spotify">
+  <img src="https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi" alt="FastAPI">
+  <img src="https://img.shields.io/badge/SQLite-07405E?style=for-the-badge&logo=sqlite&logoColor=white" alt="SQLite">
+</p>
+
+<h1 align="center">🎵 SyncVibes</h1>
+
+<p align="center">
+  <strong>Automated Metadata + Lyrics Injector for local libraries</strong><br>
+  <em>The ultimate bridge between your local library and synchronized music perfection.</em>
+</p>
+
+---
 
 A powerful tool designed to inject metadata (synchronized lyrics and high-quality covers) directly into your local audio files. Fully compatible with Navidrome, Jellyfin, and other self-hosted media servers.
 
-## ✨ Features
+## ✨Key Features
 
 - 🎶 **11+ Supported Formats**: MP3, FLAC, M4A, AAC, WAV, OGG, Opus, WMA, APE, WavPack, and Matroska.
 - 🔍 **Smart Search**: Utilizes Spotify + LRClib APIs to find accurate, time-synced lyrics.
