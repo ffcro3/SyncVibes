@@ -44,6 +44,27 @@ A powerful tool designed to inject metadata (synchronized lyrics and high-qualit
   <br>
   <em>Main Dashboard</em>
 </p>
+<p align="center">
+  <kbd>
+    <img src="docs/screenshots/lyrics.png" width="400" alt="Main Dashboard">
+  </kbd>
+  <br>
+  <em>Lyrics</em>
+</p>
+<p align="center">
+  <kbd>
+    <img src="docs/screenshots/usage.png" width="400" alt="Main Dashboard">
+  </kbd>
+  <br>
+  <em>Albums</em>
+</p>
+<p align="center">
+  <kbd>
+    <img src="docs/screenshots/cover-art.png" width="400" alt="Main Dashboard">
+  </kbd>
+  <br>
+  <em>Cover Art</em>
+</p>
 
 ## Quick Start
 
