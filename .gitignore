@@ -1,0 +1,49 @@
+# ===== ENVIRONMENT & CREDENTIALS =====
+
+.env
+.env.local
+.env.\*
+\*.env
+
+# ===== DATABASE =====
+
+_.db
+_.sqlite
+\*.sqlite3
+lyrics_data.db
+
+# ===== PYTHON =====
+
+**pycache**/
+_.py[cod]
+_$py.class
+venv/
+.venv/
+env/
+ENV/
+\*.egg-info/
+.pytest_cache/
+
+# ===== OTHERS (Seus scripts de teste) =====
+
+folders.py
+dir_scan.py
+
+# ===== MÚSICA/MÍDIA (Para não subir seus arquivos de teste) =====
+
+_.mp3
+_.flac
+_.m4a
+_.aac
+_.wav
+_.ogg
+\*.opus
+
+# ===== IDE & OS =====
+
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+_.tmp
+_.log
