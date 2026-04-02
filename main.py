@@ -108,7 +108,7 @@ class MetadataHandler:
 
             return {'artist': artist or '', 'title': title or ''}
         except Exception as e:
-            print(f"Erro ao ler metadados de {file_path}: {e}")
+            print(f"Error reading metadata from {file_path}: {e}")
             return None
 
     @staticmethod
@@ -207,7 +207,7 @@ class MetadataHandler:
 
             return False
         except Exception as e:
-            print(f"Erro ao injetar em {file_path}: {e}")
+            print(f"Error injecting metadata into {file_path}: {e}")
             return False
 
 
@@ -256,7 +256,7 @@ class LyricsEngine:
             return self._spotify_access_token
 
         if not SPOTIFY_CLIENT_ID or not SPOTIFY_CLIENT_SECRET:
-            print("ERRO: SPOTIFY_CLIENT_ID ou SPOTIFY_CLIENT_SECRET não configurados.")
+            print("ERROR: SPOTIFY_CLIENT_ID or SPOTIFY_CLIENT_SECRET not configured.")
             return None
 
         auth_string = f"{SPOTIFY_CLIENT_ID}:{SPOTIFY_CLIENT_SECRET}"
@@ -280,14 +280,14 @@ class LyricsEngine:
                     print("DEBUG: Token Spotify obtido/atualizado com sucesso.")
                     return self._spotify_access_token
                 else:
-                    print(f"ERRO: Falha ao obter token Spotify, status: {response.status}, resposta: {await response.text()}")
+                    print(f"ERROR: Failed to get Spotify token, status: {response.status}, response: {await response.text()}")
         except aiohttp.ClientError as e:
-            print(f"ERRO: Erro de rede ao obter token Spotify: {e}")
+            print(f"ERROR: Network error getting Spotify token: {e}")
         except Exception as e:
-            print(f"ERRO: Erro inesperado ao obter token Spotify: {e}")
+            print(f"ERROR: Unexpected error getting Spotify token: {e}")
         return None
 
-    # CORREÇÃO: Nova função para buscar capas usando a API do Spotify
+    # FIX: New function to fetch covers using Spotify API
     async def get_spotify_cover(self, session: aiohttp.ClientSession, artist: str, title: str) -> Optional[Dict[str, bytes]]:
         """Busca capa usando a API do Spotify"""
         cover_data = None
@@ -313,7 +313,7 @@ class LyricsEngine:
                 if spotify_response.status == 200:
                     spotify_data = await spotify_response.json()
 
-                    # Prioriza capa de álbum se disponível na faixa, senão tenta o álbum diretamente
+                    # Prefer album cover if available in track, otherwise try album result
                     cover_info = None
                     if spotify_data.get('tracks') and spotify_data['tracks']['items']:
                         track_album = spotify_data['tracks']['items'][0].get(
@@ -339,21 +339,21 @@ class LyricsEngine:
                                     return {'cover_data': cover_data, 'cover_url': cover_url}
                                 else:
                                     print(
-                                        f"DEBUG: Falha ao baixar imagem da capa do Spotify, status {img_resp.status} de {cover_url}")
+                                        f"DEBUG: Failed to download Spotify cover image, status {img_resp.status} from {cover_url}")
                     else:
                         print(
-                            f"DEBUG: Nenhuma capa do Spotify encontrada para {artist} - {title} na busca.")
+                            f"DEBUG: No Spotify cover found for {artist} - {title} in search.")
                 else:
-                    print(f"DEBUG: Erro na API do Spotify (status {spotify_response.status}) para {artist} - {title}, resposta: {await spotify_response.text()}")
+                    print(f"DEBUG: Spotify API error (status {spotify_response.status}) for {artist} - {title}, response: {await spotify_response.text()}")
         except aiohttp.ClientError as e:
             print(
-                f"DEBUG: Erro de rede ao buscar capa do Spotify para {artist} - {title}: {e}")
+                f"DEBUG: Network error while fetching Spotify cover for {artist} - {title}: {e}")
         except json.JSONDecodeError:
             print(
-                f"DEBUG: Erro de decodificação JSON da API do Spotify para {artist} - {title}.")
+                f"DEBUG: JSON decode error from Spotify API for {artist} - {title}.")
         except Exception as e:
             print(
-                f"ERRO: Erro inesperado ao buscar capa do Spotify para {artist} - {title}: {e}")
+                f"ERROR: Unexpected error while fetching Spotify cover for {artist} - {title}: {e}")
         return None
 
     async def get_lyrics_lrclib(self, session, artist: str, title: str) -> Optional[str]:
@@ -368,22 +368,22 @@ class LyricsEngine:
                     return data.get('syncedLyrics') or data.get('plainLyrics')
                 else:
                     print(
-                        f"DEBUG: Nenhuma letra do LRCLib encontrada para {artist} - {title}, status: {resp.status}")
+                        f"DEBUG: No LRCLib lyrics found for {artist} - {title}, status: {resp.status}")
         except aiohttp.ClientError as e:
             print(
-                f"DEBUG: Erro de rede ao buscar letras do LRCLib para {artist} - {title}: {e}")
+                f"DEBUG: Network error while fetching LRCLib lyrics for {artist} - {title}: {e}")
         except json.JSONDecodeError:
             print(
-                f"DEBUG: Erro de decodificação JSON da API do LRCLib para {artist} - {title}.")
+                f"DEBUG: JSON decode error from LRCLib API for {artist} - {title}.")
         except Exception as e:
             print(
-                f"DEBUG: Erro inesperado ao buscar letras do LRCLib para {artist} - {title}: {e}")
+                f"DEBUG: Unexpected error while fetching LRCLib lyrics for {artist} - {title}: {e}")
         return None
 
     async def run(self, music_path: str, mode: str = "full", retry_errors: bool = False, force_refresh: bool = False):
         """Main sync engine with smart metadata checking"""
         if not music_path:
-            self.progress["status"] = "ERROR: Caminho vazio"
+            self.progress["status"] = "ERROR: Empty path"
             return
 
         self.is_running = True
@@ -511,13 +511,13 @@ class LyricsEngine:
                             self.progress["total_injected"] += 1
                         else:
                             db_status = "FAILED"
-                            db_error_msg = "Falha ao injetar metadados no arquivo."
+                            db_error_msg = "Failed to inject metadata into file."
                     elif existing_metadata["in_database"]:
                         # Already has metadata, don't change status
                         db_status = "SUCCESS"
                     else:
                         db_status = "FAILED"
-                        db_error_msg = "Nenhuma letra ou capa encontrada para injetar."
+                        db_error_msg = "No lyrics or cover found to inject."
 
                     conn.execute('''INSERT INTO history 
                                   (file_path, artist, title, format, status, last_attempt, 
@@ -554,7 +554,7 @@ class LyricsEngine:
 
         conn.close()
         self.is_running = False
-        self.progress["status"] = "✅ Concluído"
+        self.progress["status"] = "✅ Completed"
 
 
 # ------- FASTAPI APP -------\
@@ -579,7 +579,7 @@ async def index():
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Lyrics Injector - Navidrome Metadata</title>
+        <title>SyncVibes - Library Automated Metadata</title>
         <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
         <style>
             * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -899,9 +899,9 @@ async def index():
         style="width: 100%; height: 100%; display: flex; flex-direction: column;">
             
             <div class="header">
-                <div class="header-title">🎵 Injector</div>
+                <div class="header-title">🎵 SyncVibes - Library Automated Metadata</div>
                 <div class="header-controls">
-                    <input type="text" x-model="musicPath" placeholder="Caminho da biblioteca..." class="path-input">
+                    <input type="text" x-model="musicPath" placeholder="Library path..." class="path-input">
                     <button @click="!isRunning && fetch('/sync?path=' + encodeURIComponent(musicPath) + '&mode=full')" :disabled="isRunning" class="btn">Full Sync</button>
                     <button @click="!isRunning && fetch('/sync?path=' + encodeURIComponent(musicPath) + '&mode=lyrics')" :disabled="isRunning" class="btn btn-secondary">Lyrics</button>
                     <button @click="!isRunning && fetch('/sync?path=' + encodeURIComponent(musicPath) + '&mode=covers')" :disabled="isRunning" class="btn btn-secondary">Covers</button>
@@ -916,38 +916,38 @@ async def index():
                         <div class="sidebar-title">Status</div>
                         <div style="font-size: 12px; color: #b3b3b3;">
                             <span x-show="isRunning" style="color: #1db954; margin-right: 6px;">●</span>
-                            <span x-text="stats.status || 'Aguardando...'"></span>
+                            <span x-text="stats.status || 'Waiting...'"></span>
                         </div>
                         <div class="progress-bar" style="margin-top: 12px;">
                             <div class="progress-fill" :style="'width: ' + (stats.total > 0 ? (stats.current/stats.total)*100 : 0) + '%'"></div>
                         </div>
                     </div>
                     <div class="sidebar-section">
-                        <div class="sidebar-title">Estatísticas</div>
+                        <div class="sidebar-title">Stats</div>
                         <div style="display: grid; grid-template-columns: 1fr; gap: 8px;">
                             <div class="stat-card">
                                 <div class="stat-value" x-text="(stats.total > 0 ? Math.round((stats.current/stats.total)*100) : 0) + '%'"></div>
-                                <div class="stat-label">Progresso</div>
+                                <div class="stat-label">Progress</div>
                             </div>
                             <div class="stat-card">
                                 <div class="stat-value" x-text="stats.success_lyrics || 0"></div>
-                                <div class="stat-label">Letras</div>
+                                <div class="stat-label">Lyrics</div>
                             </div>
                             <div class="stat-card">
                                 <div class="stat-value" x-text="stats.success_covers || 0"></div>
-                                <div class="stat-label">Capas</div>
+                                <div class="stat-label">Covers</div>
                             </div>
                             <div class="stat-card">
                                 <div class="stat-value" x-text="stats.total_injected || 0"></div>
-                                <div class="stat-label">Injetadas</div>
+                                <div class="stat-label">Injected</div>
                             </div>
                             <div class="stat-card">
                                 <div class="stat-value" x-text="stats.skipped || 0" style="color: #999;"></div>
-                                <div class="stat-label">Ignoradas</div>
+                                <div class="stat-label">Skipped</div>
                             </div>
                             <div class="stat-card">
                                 <div class="stat-value" x-text="stats.errors || 0" style="color: #f87171;"></div>
-                                <div class="stat-label">Erros</div>
+                                <div class="stat-label">Errors</div>
                             </div>
                         </div>
                     </div>
@@ -956,31 +956,31 @@ async def index():
                 </div>
                 
                 <div class="library-view">
-                    <div class="library-title">Sua Biblioteca</div>
+                    <div class="library-title">Your Library</div>
                     
                     <div class="library-stats">
                         <div class="stat-card">
                             <div class="stat-value" x-text="history.length"></div>
-                            <div class="stat-label">Total de Faixas</div>
+                            <div class="stat-label">Total Tracks</div>
                         </div>
                         <div class="stat-card">
                             <div class="stat-value" x-text="history.filter(h => h.status == 'SUCCESS').length"></div>
-                            <div class="stat-label">Sincronizadas</div>
+                            <div class="stat-label">Synced</div>
                         </div>
                         <div class="stat-card">
                             <div class="stat-value" x-text="history.filter(h => h.status == 'ERROR').length"></div>
-                            <div class="stat-label">Com Erro</div>
+                            <div class="stat-label">Errored</div>
                         </div>
                         <div class="stat-card">
                             <div class="stat-value" x-text="history.filter(h => h.lyrics_injected).length"></div>
-                            <div class="stat-label">Com Letras</div>
+                            <div class="stat-label">With Lyrics</div>
                         </div>
                     </div>
                     
                     <div class="library-tabs">
-                        <button @click="tab = 'all'" :class="tab == 'all' ? 'active' : ''" class="tab">Todas</button>
-                        <button @click="tab = 'synced'" :class="tab == 'synced' ? 'active' : ''" class="tab">Sincronizadas</button>
-                        <button @click="tab = 'errors'" :class="tab == 'errors' ? 'active' : ''" class="tab">Erros</button>
+                        <button @click="tab = 'all'" :class="tab == 'all' ? 'active' : ''" class="tab">All</button>
+                        <button @click="tab = 'synced'" :class="tab == 'synced' ? 'active' : ''" class="tab">Synced</button>
+                        <button @click="tab = 'errors'" :class="tab == 'errors' ? 'active' : ''" class="tab">Errors</button>
                     </div>
                     
                     <div class="tracks-grid">
@@ -1028,7 +1028,7 @@ async def start_sync(path: str, mode: str = "full", retry_errors: bool = False, 
     """Start synchronization"""
     background_tasks.add_task(engine.run, path, mode,
                               retry_errors, force_refresh)
-    return {"message": f"Sync iniciado em modo {mode}" + (" (Force Refresh)" if force_refresh else "")}
+    return {"message": f"Sync started in mode {mode}" + (" (Force Refresh)" if force_refresh else "")}
 
 
 @app.get("/status")

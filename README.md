@@ -13,7 +13,7 @@
   <img src="https://img.shields.io/badge/SQLite-07405E?style=for-the-badge&logo=sqlite&logoColor=white" alt="SQLite">
 </p>
 
-<h1 align="center">🎵 SyncVibes</h1>
+<h1 align="center">🎵 SyncVibes 🎵</h1>
 
 <p align="center">
   <strong>Automated Metadata + Lyrics Injector for local libraries</strong><br>
@@ -24,7 +24,7 @@
 
 A powerful tool designed to inject metadata (synchronized lyrics and high-quality covers) directly into your local audio files. Fully compatible with Navidrome, Jellyfin, and other self-hosted media servers.
 
-## ✨Key Features
+## Key Features
 
 - 🎶 **11+ Supported Formats**: MP3, FLAC, M4A, AAC, WAV, OGG, Opus, WMA, APE, WavPack, and Matroska.
 - 🔍 **Smart Search**: Utilizes Spotify + LRClib APIs to find accurate, time-synced lyrics.
@@ -35,7 +35,17 @@ A powerful tool designed to inject metadata (synchronized lyrics and high-qualit
 - 🎯 **Spotify-like UI**: Clean, responsive sidebar + library view inspired by modern players.
 - 💾 **Local Database**: Persistent tracking of all synchronization history (SQLite).
 
-## 🚀 Quick Start
+## Screenshots
+
+<p align="center">
+  <kbd>
+    <img src="docs/screenshots/main_dashboard.png" width="400" alt="Main Dashboard">
+  </kbd>
+  <br>
+  <em>Main Dashboard</em>
+</p>
+
+## Quick Start
 
 ### Prerequisites
 
@@ -45,8 +55,8 @@ A powerful tool designed to inject metadata (synchronized lyrics and high-qualit
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/your-username/lyrics-injector.git
-cd lyrics-injector
+git clone https://github.com/your-username/syncvibes.git
+cd syncvibes
 ```
 
 ### 2. Configure Environment
@@ -86,9 +96,7 @@ Access: **http://localhost:8895**
 4. Copy your `Client ID` and `Client Secret`.
 5. Paste these values into your `.env` file.
 
-**⚠️ Warning: Never commit your `.env` file!** (It is already included in `.gitignore`).
-
-## 🎯 Usage
+## Usage
 
 ### Web Interface
 
@@ -104,11 +112,11 @@ Access: **http://localhost:8895**
 | **Refresh All**  | Forces a full update | ~6 min / 500 songs |
 | **Retry Errors** | Retries failed files | ~1 min / 50 errors |
 
-## 🛠️ Development & Contribution
+## Development & Contribution
 
 If you want to help improve the project or add support for new formats, please refer to our [**Development Setup Guide (DEVELOPMENT.md)**](./DEVELOPMENT.md) for detailed instructions.
 
-## 🎵 Supported Formats
+## Supported Formats
 
 | Format     | Extension  | Metadata Type | Lyrics | Cover |
 | ---------- | ---------- | ------------- | ------ | ----- |
@@ -121,7 +129,7 @@ If you want to help improve the project or add support for new formats, please r
 
 _(Full list in the app settings)_
 
-## 🧠 Smart Metadata Detection
+## Smart Metadata Detection
 
 The system automatically detects:
 
@@ -132,7 +140,7 @@ The system automatically detects:
 
 Use **Force Refresh** mode (`force_refresh=true`) to overwrite existing metadata.
 
-## 🔧 Troubleshooting
+## Troubleshooting
 
 ### "Path does not exist"
 
@@ -145,18 +153,18 @@ Use **Force Refresh** mode (`force_refresh=true`) to overwrite existing metadata
 - Close any application (Spotify, Music Player) that might be locking the files.
 - Wait a few seconds and click "Retry Errors".
 
-## 🚀 Deployment
+## Deployment
 
 ### Docker (Optional)
 
 Build and run:
 
 ```bash
-docker build -t lyrics-injector .
-docker run -p 8895:8895 -v $(pwd):/app lyrics-injector
+docker build -t syncvibes .
+docker run -p 8895:8895 -v $(pwd):/app syncvibes
 ```
 
-## 📄 License
+## License
 
 MIT License - see LICENSE for details.
 
