@@ -1,4 +1,4 @@
-# 🎵 Lyrics Injector
+# 🎵 SyncVibes - Metadata + Lyrics Injector for local libraries
 
 > **Automatically sync lyrics and album art to your music library (Spotify/Navidrome compatible)**
 
