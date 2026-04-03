@@ -887,15 +887,27 @@ async def index():
             musicPath: 'D:/Music',
             history: [],
             stats: {},
-            isRunning: false
+            isRunning: false,
+            page: 0,
+            limit: 50,
+            totalStats: {}
         }" 
         x-init="setInterval(() => {
             fetch('/status').then(r => r.json()).then(d => {
                 stats = d;
                 isRunning = d.is_running;
             });
-            fetch('/history').then(r => r.json()).then(d => history = d);
-        }, 500)"
+            fetch('/stats').then(r => r.json()).then(d => totalStats = d);
+        }, 2000);
+        $watch('page', () => loadHistory());
+        $watch('tab', () => { page = 0; loadHistory(); });
+        function loadHistory() {
+            let statusParam = '';
+            if (tab === 'synced') statusParam = '&status=SUCCESS';
+            else if (tab === 'errors') statusParam = '&status=ERROR';
+            fetch('/history?limit=' + limit + '&offset=' + (page * limit) + statusParam).then(r => r.json()).then(d => history = d);
+        }
+        loadHistory();"
         style="width: 100%; height: 100%; display: flex; flex-direction: column;">
             
             <div class="header">
@@ -906,7 +918,7 @@ async def index():
                     <button @click="!isRunning && fetch('/sync?path=' + encodeURIComponent(musicPath) + '&mode=lyrics')" :disabled="isRunning" class="btn btn-secondary">Lyrics</button>
                     <button @click="!isRunning && fetch('/sync?path=' + encodeURIComponent(musicPath) + '&mode=covers')" :disabled="isRunning" class="btn btn-secondary">Covers</button>
                     <button @click="!isRunning && fetch('/sync?path=' + encodeURIComponent(musicPath) + '&mode=full&force_refresh=true')" :disabled="isRunning" class="btn btn-secondary">🔄 Refresh All</button>
-                    <button @click="!isRunning && history.some(h => h.status == 'ERROR') && fetch('/sync?path=' + encodeURIComponent(musicPath) + '&mode=full&retry_errors=true')" :disabled="isRunning || !history.some(h => h.status == 'ERROR')" class="btn btn-secondary">Retry Errors</button>
+                    <button @click="!isRunning && totalStats.errored > 0 && fetch('/sync?path=' + encodeURIComponent(musicPath) + '&mode=full&retry_errors=true')" :disabled="isRunning || totalStats.errored === 0" class="btn btn-secondary">Retry Errors</button>
                 </div>
             </div>
             
@@ -960,19 +972,19 @@ async def index():
                     
                     <div class="library-stats">
                         <div class="stat-card">
-                            <div class="stat-value" x-text="history.length"></div>
+                            <div class="stat-value" x-text="totalStats.total_tracks || 0"></div>
                             <div class="stat-label">Total Tracks</div>
                         </div>
                         <div class="stat-card">
-                            <div class="stat-value" x-text="history.filter(h => h.status == 'SUCCESS').length"></div>
+                            <div class="stat-value" x-text="totalStats.synced || 0"></div>
                             <div class="stat-label">Synced</div>
                         </div>
                         <div class="stat-card">
-                            <div class="stat-value" x-text="history.filter(h => h.status == 'ERROR').length"></div>
+                            <div class="stat-value" x-text="totalStats.errored || 0"></div>
                             <div class="stat-label">Errored</div>
                         </div>
                         <div class="stat-card">
-                            <div class="stat-value" x-text="history.filter(h => h.lyrics_injected).length"></div>
+                            <div class="stat-value" x-text="totalStats.with_lyrics || 0"></div>
                             <div class="stat-label">With Lyrics</div>
                         </div>
                     </div>
@@ -984,7 +996,7 @@ async def index():
                     </div>
                     
                     <div class="tracks-grid">
-                        <template x-for="track in history.filter(t => tab == 'all' ? true : (tab == 'synced' ? t.status == 'SUCCESS' : t.status == 'ERROR'))">
+                        <template x-for="track in history">
                             <div class="track-row">
                                 <div>
                                     <template x-if="track.cover_url && track.cover_url.startsWith('http')">
@@ -1015,6 +1027,12 @@ async def index():
                             </div>
                         </template>
                     </div>
+                    
+                    <div style="display: flex; justify-content: center; gap: 12px; margin-top: 20px;">
+                        <button @click="page = Math.max(0, page - 1)" :disabled="page === 0" class="btn btn-secondary">Previous</button>
+                        <span style="color: #b3b3b3; align-self: center;" x-text="'Page ' + (page + 1)"></span>
+                        <button @click="page += 1" class="btn btn-secondary">Next</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1038,22 +1056,42 @@ async def get_status():
 
 
 @app.get("/history")
-async def get_history():
-    """Get history"""
+async def get_history(limit: int = 100, offset: int = 0, status: str = None):
+    """Get history with pagination and optional status filter"""
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
-    res = [dict(r) for r in conn.execute(
-        "SELECT * FROM history ORDER BY last_attempt DESC"
-    ).fetchall()]
+    query = "SELECT * FROM history"
+    params = []
+    if status:
+        query += " WHERE status = ?"
+        params.append(status)
+    query += " ORDER BY last_attempt DESC LIMIT ? OFFSET ?"
+    params.extend([limit, offset])
+    res = [dict(r) for r in conn.execute(query, params).fetchall()]
     conn.close()
     return res
 
 
-@app.get("/supported-formats")
-async def get_formats():
-    """Get supported formats"""
-    return MetadataHandler.SUPPORTED_FORMATS
+@app.get("/stats")
+async def get_stats():
+    """Get aggregated stats"""
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    total = cursor.execute("SELECT COUNT(*) FROM history").fetchone()[0]
+    synced = cursor.execute(
+        "SELECT COUNT(*) FROM history WHERE status = 'SUCCESS'").fetchone()[0]
+    errored = cursor.execute(
+        "SELECT COUNT(*) FROM history WHERE status = 'ERROR'").fetchone()[0]
+    with_lyrics = cursor.execute(
+        "SELECT COUNT(*) FROM history WHERE lyrics_injected = 1").fetchone()[0]
+    conn.close()
+    return {
+        "total_tracks": total,
+        "synced": synced,
+        "errored": errored,
+        "with_lyrics": with_lyrics
+    }
 
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8895)
+    uvicorn.run(app, host="0.0.0.0", port=7789)

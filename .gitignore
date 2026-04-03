@@ -32,6 +32,9 @@ limpar_playlists.py
 playlists_manager.py
 spotify_covers.py
 check_images.py
+/assets*
+/tests*
+/logs*
 
 # ===== MÚSICA/MÍDIA (Para não subir seus arquivos de teste) =====
 
@@ -51,3 +54,4 @@ _.ogg
 Thumbs.db
 _.tmp
 _.log
+*.log
